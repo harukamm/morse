@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <map>
 #include "trie.h"
 #include "training.h"
 #include "util.h"
@@ -150,55 +151,76 @@ vector<vector<pair<int, string> > > find_all_candidates(const string& str, Trie*
 struct info_t {
   int word_count;
   int prev;
+  int begin;
+  int end;
   string word;
   float score;
+
+  bool operator<(const info_t& a) const {
+    return score == a.score ? (word_count > a.word_count) : score > a.score;
+  }
+
+  int node_id(int base) const {
+    return end * base + (end - begin);
+  }
 };
 
 vector<string> decode_sentence(const string& str, Trie* dict, TrainingHandler* training) {
   const vector<vector<pair<int, string> > >& matched =
       find_all_candidates(str, dict);
-  vector<info_t> dp(str.size() + 1);
-  for(int i = 0; i < dp.size(); i++) {
-    dp[i].word_count = INT_MAX;
-    dp[i].prev = -1;
-  }
-  dp[0].word_count = 0;
-  for(int i = 0; i < str.size(); i++) {
-    info_t min_ = { INT_MAX, -1, "", -1 };
-
-    for(int j = 0; j <= i; j++) {
-      if(dp[j].word_count == INT_MAX)
-        continue;
-      int length = i - j + 1;
-      const vector<pair<int, string> >& ps = matched[j];
-      for(auto &p : ps) {
-        int code_length = p.first;
-        const string& word = p.second;
-        float conn_prob = training->get_connection_prob(dp[j].word, word);
-        float freq_prob = training->get_freq_prob(word);
-        float score = conn_prob * freq_prob;
-        if(code_length == length) {
-          if(min_.score < score) {
-            min_.word_count = dp[j].word_count + 1;
-            min_.prev = j;
-            min_.word = word;
-            min_.score = score;
-          }
-        }
-      }
+  map<int, info_t> visited_node; // info keyed by node_id
+  vector<info_t> end_node; // node_id keyed by end-index
+  queue<info_t> q;
+  info_t init = { 0, -1, 0, 0, "", 0 };
+  q.push(init);
+  int beam = 5;
+  while(!q.empty()) {
+    info_t info = q.front();
+    q.pop();
+    int node_id = info.node_id(str.size());
+    if(visited_node.find(node_id) != visited_node.end())
+      continue;
+    visited_node[node_id] = info;
+    assert(info.end <= str.size());
+    if(str.size() == info.end) {
+      end_node.push_back(info);
+      continue;
     }
-    dp[i + 1] = min_;
+    const vector<pair<int, string> >& ps = matched[info.end];
+    vector<info_t> candidates(ps.size());
+    for(int i = 0; i < ps.size(); i++) {
+      const pair<int, string>& p = ps[i];
+      int code_length = p.first;
+      const string& word = p.second;
+      float conn_prob = training->get_connection_prob(info.word, word);
+      float freq_prob = training->get_freq_prob(word);
+      float score = conn_prob + freq_prob / 1000;
+      info_t info2 = { info.word_count + 1, node_id,
+          info.end, info.end + code_length, word, score };
+      candidates[i] = info2;
+    }
+    sort(candidates.begin(), candidates.end());
+    if(beam < candidates.size())
+      candidates.erase(candidates.begin() + beam, candidates.end());
+    for(auto &cand : candidates)
+      q.push(cand);
   }
-
-  int end = str.size();
+  assert(end_node.size() != 0);
   vector<string> result;
-  while(0 < end) {
-    info_t inf = dp[end];
-    assert(inf.word_count != INT_MAX);
-    assert(inf.prev != -1);
-    const string& word = inf.word;
-    result.push_back(word);
-    end = inf.prev;
+  sort(end_node.begin(), end_node.end());
+  info_t end = end_node[0];
+  for(int i = 0; i < end_node.size(); i++) {
+    float a = training->get_freq_prob(end.word);
+    float b = training->get_freq_prob(end_node[i].word);
+    if(a < b)
+      end = end_node[i];
+  }
+  int id = end.node_id(str.size());
+  while(id != -1) { // prev must be list !
+    assert(visited_node.find(id) != visited_node.end());
+    info_t info = visited_node[id];
+    result.push_back(info.word);
+    id = info.prev;
   }
   reverse(result.begin(), result.end());
   return result;
