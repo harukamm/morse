@@ -102,10 +102,10 @@ vector<pair<int, string> > decode_prefix(const string& str, Trie* tr) {
   queue<pair<int, Trie*> > q;
   q.push(make_pair(0, tr));
   while(!q.empty()) {
-    const pair<int, Trie*> p = q.front();
-    q.pop();
+    const pair<int, Trie*>& p = q.front();
     int index = p.first;
     Trie* node = p.second;
+    q.pop();
     if(node->terminal())
       result.push_back(make_pair(index, node->get_word()));
     if(str.size() <= index)
