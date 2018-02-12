@@ -19,14 +19,6 @@ unordered_map<string, char> decode_table;
 unordered_map<char, string> encode_table;
 int max_morse_length = 4;
 
-template <class T>
-void print_vec(const vector<T>& vec) {
-  for(int i = 0; i < vec.size(); i++) {
-    cout << vec[i] << " ";
-  }
-  cout << endl;
-}
-
 void init_table() {
   decode_table[".-"  ] = 'A';
   decode_table["-..."] = 'B';
@@ -251,7 +243,7 @@ int main() {
   const string& code = encode_str(input);
   cout << code << endl;
   const vector<string>& result = decode_sentence(code, tr, training);
-  print_vec(result);
+  Util::print_vec(result);
   const string& encoded = encode_vec(result);
   assert(code == encoded);
   delete tr;
