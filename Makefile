@@ -13,6 +13,7 @@ $(OBJS): %.o: %.cc
 
 clean:
 	rm -f main $(OBJS)
+	rm -fr training/*
 
 -include *.d
 

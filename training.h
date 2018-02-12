@@ -14,6 +14,10 @@ class TrainingHandler {
       "wiki/metamorphosis.txt"
     };
 
+    const string training_dir = "training/";
+
+    const string training_prefix = "training_";
+
     string dictionary_fname;
 
     string training_fname;
@@ -33,8 +37,6 @@ class TrainingHandler {
   private:
     typedef unordered_map<long long, float> bimap;
 
-    const string training_prefix = "training_";
-    
     vector<string> dictionary;
     
     unordered_map<string, int> dictionary_table;
@@ -42,9 +44,7 @@ class TrainingHandler {
     bimap connection_prob;
 
     vector<float> freq_prob;
-    
-    void restore_training_data();
-    
+
     bool valid_word(const string& word);
     
     void init_dictionary(const string& fname);
@@ -63,6 +63,8 @@ class TrainingHandler {
         bimap* connection_freq, vector<int>* freq);
    
     void output_training_data();
+
+    void restore_training_data();
 
     void dump();
     

@@ -9,10 +9,19 @@ const string training_prefix = "training_";
 
 TrainingHandler::TrainingHandler(const string& dict_fname) {
   dictionary_fname = dict_fname;
-  training_fname = training_prefix + Util::replace_chars(dict_fname, "/", '_');
+  training_fname =
+      training_dir + training_prefix +
+      Util::replace_chars(dict_fname, "/", '_');
   
-  init_dictionary(dict_fname);
-  restore_training_data();
+  ifstream infile(training_fname);
+  bool exists = infile.good();
+  if(!exists) {
+    init_dictionary(dict_fname);
+    training();
+    output_training_data();
+  } else {
+    restore_training_data();
+  }
 }
 
 TrainingHandler::~TrainingHandler() {
@@ -44,11 +53,6 @@ float TrainingHandler::get_freq_prob(const string& w) {
   if(i == NOT_FOUND)
     return 0.0;
   return freq_prob[i];
-}
-
-void TrainingHandler::restore_training_data() {
-  training();
-  //output_training_data(training_data);
 }
 
 bool TrainingHandler::valid_word(const string& word) {
@@ -126,17 +130,46 @@ void TrainingHandler::read_frequency_in_file(const string& doc_filename,
 
 void TrainingHandler::output_training_data() {
   ofstream output(training_fname);
+  output << dictionary.size() << endl;
   for(int i = 0; i < dictionary.size(); i++) {
     float freq = freq_prob[i];
     const string& word = dictionary[i];
-    output << i << "," << word << "," << freq << endl;
+    output << i << " " << word << " " << freq << endl;
   }
+  output << connection_prob.size() << endl;
   for(auto &p : connection_prob) {
     int i = p.first / dictionary.size();
     int j = p.first % dictionary.size();
-    output << i << "," << j << "," << p.second << endl;
+    output << i << " " << j << " " << p.second << endl;
   }
   output.close();
+}
+
+void TrainingHandler::restore_training_data() {
+  ifstream myfile(training_fname);
+  assert(myfile.is_open());
+  // Read freq probability and init dictionary
+  int size;
+  myfile >> size;
+  dictionary.resize(size);
+  freq_prob.resize(size, 0);
+  for(int i = 0; i < size; i++) {
+    int index;
+    string word;
+    float prob;
+    myfile >> index >> word >> prob;
+    dictionary[index] = word;
+    dictionary_table[word] = index;
+    freq_prob[index] = prob;
+  }
+  myfile >> size;
+  // Read connection probability
+  for(int i = 0; i < size; i++) {
+    int i1, i2;
+    float prob;
+    myfile >> i1 >> i2 >> prob;
+    connection_prob[bigram_key(i1, i2)] = prob;
+  }
 }
 
 void TrainingHandler::dump() {
