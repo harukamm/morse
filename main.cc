@@ -170,7 +170,11 @@ vector<string> decode_sentence(const string& str, Trie* dict, TrainingHandler* t
         const string& word = p.second;
         float freq_prob = training->get_freq_prob(word);
         float conn_prob = training->get_connection_prob(prev_word, word);
-        float score = prev_word != "" && conn_prob == 0 ? (-1) : conn_prob * freq_prob;
+        float score;
+        if(prev_word != "" && conn_prob == 0)
+          score = -1;
+        else
+          score = conn_prob; // * freq_prob;
         node_t next_node = {
             node.score + score, node.word_count + 1,
             make_pair(i, k), word };
