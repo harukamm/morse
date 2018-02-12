@@ -8,8 +8,7 @@ using namespace std;
 const string training_prefix = "training_";
 
 TrainingHandler::TrainingHandler() {
-  training_fname =
-      training_dir + training_prefix;
+  training_fname = training_dir + training_prefix;
   
   ifstream infile(training_fname);
   bool exists = infile.good();
