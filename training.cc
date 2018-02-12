@@ -109,10 +109,17 @@ void TrainingHandler::read_frequency_in_file(const string& doc_filename,
   ifstream myfile(doc_filename);
   assert(myfile.is_open());
 
+  string sentence;
   string line;
-  while(getline(myfile, line)) {
-    // TODO: Continue to read the line until "!?.," appears
-    read_frequency_on_line(line, connection_freq, freq);
+  while(!myfile.eof()) {
+    // Continue to read the line until "!?.," appears
+    while(getline(myfile, line)) {
+      sentence += line;
+      if(line.find_first_of("!?.,") != string::npos)
+        break;
+    }
+    read_frequency_on_line(sentence, connection_freq, freq);
+    sentence.clear();
   }
   myfile.close();
 }
