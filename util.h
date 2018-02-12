@@ -7,8 +7,6 @@ class Util {
   public:
     static string to_upper(const string& str);
 
-    static string to_lower(const string& str);
-
     static string trim(const string& str);
 
     static string remove_chars(const string& str, const string& sep);

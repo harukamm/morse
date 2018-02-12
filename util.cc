@@ -10,14 +10,6 @@ string Util::to_upper(const string& str) {
   return buf;
 }
 
-string Util::to_lower(const string& str) {
-  char buf[str.size() + 1];
-  for(int i = 0; i < str.size(); i++)
-    buf[i] = tolower(str[i]);
-  buf[str.size()] = '\0';
-  return buf;
-}
-
 string Util::trim(const string& str) {
   int begin = str.find_first_not_of(Util::whitespaces);
   if(begin == string::npos) {
