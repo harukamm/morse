@@ -38,6 +38,8 @@ class TrainingHandler {
     vector<string> get_dictionary();
 
   private:
+    const long long base_number = INT_MAX;
+
     typedef unordered_map<long long, float> bimap;
 
     vector<string> dictionary;

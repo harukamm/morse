@@ -25,8 +25,8 @@ TrainingHandler::~TrainingHandler() {
 }
 
 long long TrainingHandler::bigram_key(int i, int j) {
-  assert(dictionary.size() < INT_MAX);
-  return 1LL * i * INT_MAX + j;
+  assert(dictionary.size() < base_number);
+  return 1LL * i * base_number + j;
 }
 
 int TrainingHandler::word_to_index(const string& w) {
@@ -134,8 +134,8 @@ void TrainingHandler::output_training_data() {
   }
   output << connection_prob.size() << endl;
   for(auto &p : connection_prob) {
-    int i = p.first / dictionary.size();
-    int j = p.first % dictionary.size();
+    int i = p.first / base_number;
+    int j = p.first % base_number;
     output << i << " " << j << " " << p.second << endl;
   }
   output.close();
@@ -190,8 +190,8 @@ void TrainingHandler::dump() {
   sort(bi_copy.begin(), bi_copy.end());
   for(int d = 0; d < 10; d++) {
     const pair<float, long long>& p = bi_copy[bi_copy.size() - 1 - d];
-    int i = p.second / dictionary.size();
-    int j = p.second % dictionary.size();
+    int i = p.second / base_number;
+    int j = p.second % base_number;
     cout << dictionary[i] << ", " << dictionary[j] << ": " << p.first << endl;
   }
 }
