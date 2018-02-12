@@ -231,7 +231,11 @@ void test_all() {
 }
 // ------------------------------------
 
-int main() {
+int main(int argc, char** argv) {
+  if(argc != 2) {
+    cout << "Usage: ./main <sentence>" << endl;
+    exit(1);
+  }
   init_table();
   Trie* tr = Trie::from_dictionary(dictionary_filename);
   cout << "trie done" << endl;
@@ -242,7 +246,7 @@ int main() {
 //  string sentence = "I want to assign this to a string";
 //  string sentence = "Tom pried his mouth open";
 //  string sentence = "Then he went tearing around the house again";
-  string sentence = "I really like you";
+  string sentence = argv[1];
   string input = Util::remove_whitespaces(sentence);
   const string& code = encode_str(input);
   cout << code << endl;
