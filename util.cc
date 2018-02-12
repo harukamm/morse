@@ -22,8 +22,14 @@ string Util::trim(const string& str) {
 
 string Util::remove_chars(const string& str, const string& sep) {
   char buf[str.size()];
-  copy_if(str.begin(), str.end(), buf,
-      [](char c) { return c != ' '; });
+  int x = 0;
+  for(int i = 0; i < str.size(); i++) {
+    char c = str[i];
+    if(sep.find(c) != string::npos)
+      continue;
+    buf[x++] = c;
+  }
+  buf[x] = '\0';
   return buf;
 }
 
