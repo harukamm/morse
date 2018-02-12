@@ -11,7 +11,8 @@ class TrainingHandler {
     const vector<string> training_sources {
       "wiki/tom_sawyer.txt",
       "wiki/wizard_oz.txt",
-      "wiki/metamorphosis.txt"
+      "wiki/metamorphosis.txt",
+      "wiki/les_miserable.txt"
     };
 
     const string training_dir = "training/";
