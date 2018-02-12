@@ -148,82 +148,63 @@ vector<vector<pair<int, string> > > find_all_candidates(const string& str, Trie*
 }
 
 // - decode a sentence ----------------
-struct info_t {
-  int word_count;
-  int prev;
-  int begin;
-  int end;
-  string word;
+struct node_t {
   float score;
+  int word_count;
+  pair<int, int> prev;
+  string word;
 
-  bool operator<(const info_t& a) const {
-    return score == a.score ? (word_count > a.word_count) : score > a.score;
-  }
-
-  int node_id(int base) const {
-    return end * base + (end - begin);
+  bool operator<(const node_t& a) const {
+    return score == a.score ? (word_count < a.word_count) : score > a.score;
   }
 };
 
 vector<string> decode_sentence(const string& str, Trie* dict, TrainingHandler* training) {
-  const vector<vector<pair<int, string> > >& matched =
+  const vector<vector<pair<int, string> > >& cand_words =
       find_all_candidates(str, dict);
-  map<int, info_t> visited_node; // info keyed by node_id
-  vector<info_t> end_node; // node_id keyed by end-index
-  queue<info_t> q;
-  info_t init = { 0, -1, 0, 0, "", 0 };
-  q.push(init);
-  int beam = 5;
-  while(!q.empty()) {
-    info_t info = q.front();
-    q.pop();
-    int node_id = info.node_id(str.size());
-    if(visited_node.find(node_id) != visited_node.end())
-      continue;
-    visited_node[node_id] = info;
-    assert(info.end <= str.size());
-    if(str.size() == info.end) {
-      end_node.push_back(info);
-      continue;
+  vector<vector<node_t> > dp(str.size() + 1);
+  node_t init = { 0.0, 0, make_pair(-1, -1), "" };
+  dp[0].push_back(init);
+
+  for(int i = 0; i < str.size(); i++) {
+    sort(dp[i].begin(), dp[i].end());
+    for(int k = 0; k < 1000; k++) {
+      if(dp[i].size() <= k)
+        break;
+      const node_t& node = dp[i][k];
+      const string& prev_word = node.word;
+      for(auto &p : cand_words[i]) {
+        int code_length = p.first;
+        const string& word = p.second;
+        float freq_prob = training->get_freq_prob(word);
+        float conn_prob = training->get_connection_prob(prev_word, word);
+        float score = prev_word != "" && conn_prob == 0 ? (-1) : conn_prob * freq_prob;
+        node_t next_node = {
+            node.score + score, node.word_count + 1,
+            make_pair(i, k), word };
+        dp[i + code_length].push_back(next_node);
+      }
     }
-    const vector<pair<int, string> >& ps = matched[info.end];
-    vector<info_t> candidates(ps.size());
-    for(int i = 0; i < ps.size(); i++) {
-      const pair<int, string>& p = ps[i];
-      int code_length = p.first;
-      const string& word = p.second;
-      float conn_prob = training->get_connection_prob(info.word, word);
-      float freq_prob = training->get_freq_prob(word);
-      float score = conn_prob + freq_prob / 1000;
-      info_t info2 = { info.word_count + 1, node_id,
-          info.end, info.end + code_length, word, score };
-      candidates[i] = info2;
+  }
+  sort(dp[str.size()].begin(), dp[str.size()].end());
+  vector<vector<string> > best_sentences;
+  for(int k = 0; k < 10; k++) {
+    if(dp[str.size()].size() <= k)
+      break;
+    vector<string> sentence;
+    node_t node = dp[str.size()][k];
+    while(node.prev.first != -1) {
+      sentence.push_back(node.word);
+      node = dp[node.prev.first][node.prev.second];
     }
-    sort(candidates.begin(), candidates.end());
-    if(beam < candidates.size())
-      candidates.erase(candidates.begin() + beam, candidates.end());
-    for(auto &cand : candidates)
-      q.push(cand);
+    reverse(sentence.begin(), sentence.end());
+    cout << (k + 1) << "-the (";
+    cout << dp[str.size()][k].score << "): ";
+    Util::print_vec(sentence);
+    best_sentences.push_back(sentence);
   }
-  assert(end_node.size() != 0);
-  vector<string> result;
-  sort(end_node.begin(), end_node.end());
-  info_t end = end_node[0];
-  for(int i = 0; i < end_node.size(); i++) {
-    float a = training->get_freq_prob(end.word);
-    float b = training->get_freq_prob(end_node[i].word);
-    if(a < b)
-      end = end_node[i];
-  }
-  int id = end.node_id(str.size());
-  while(id != -1) { // prev must be list !
-    assert(visited_node.find(id) != visited_node.end());
-    info_t info = visited_node[id];
-    result.push_back(info.word);
-    id = info.prev;
-  }
-  reverse(result.begin(), result.end());
-  return result;
+  assert(best_sentences.size() != 0);
+  return best_sentences[0];
 }
 
 // - encode ---------------------------
