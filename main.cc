@@ -151,7 +151,7 @@ vector<string> decode_sentence(const string& str, Trie* dict, TrainingHandler* t
   const vector<vector<pair<int, string> > >& cand_words =
       find_all_candidates(str, dict);
   vector<vector<node_t> > dp(str.size() + 1);
-  node_t init = { 0.0, 0, make_pair(-1, -1), "" };
+  node_t init = { 1.0, 0, make_pair(-1, -1), "" };
   dp[0].push_back(init);
 
   for(int i = 0; i < str.size(); i++) {
@@ -166,13 +166,9 @@ vector<string> decode_sentence(const string& str, Trie* dict, TrainingHandler* t
         const string& word = p.second;
         float freq_prob = training->get_freq_prob(word);
         float conn_prob = training->get_connection_prob(prev_word, word);
-        float score;
-        if(prev_word != "" && conn_prob == 0)
-          score = -1;
-        else
-          score = conn_prob; // * freq_prob;
+        float score = conn_prob;
         node_t next_node = {
-            node.score + score, node.word_count + 1,
+            node.score * score, node.word_count + 1,
             make_pair(i, k), word };
         dp[i + code_length].push_back(next_node);
       }

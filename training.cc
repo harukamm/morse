@@ -26,16 +26,18 @@ TrainingHandler::~TrainingHandler() {
 float TrainingHandler::get_connection_prob(const string& w1, const string& w2) {
   int i = word_to_index(w1);
   int j = word_to_index(w2);
-  if(i == NOT_FOUND || j == NOT_FOUND)
-    return 0.0;
-  long long k = bigram_key(i, j);
-  return connection_prob[k];
+  if(i != NOT_FOUND && j != NOT_FOUND) {
+    long long k = bigram_key(i, j);
+    if(connection_prob.find(k) != connection_prob.end())
+      return connection_prob[k];
+  }
+  return 1.0 / (float)total_freq;
 }
 
 float TrainingHandler::get_freq_prob(const string& w) {
   int i = word_to_index(w);
-  if(i == NOT_FOUND)
-    return 0.0;
+  if(i == NOT_FOUND || freq_prob[i] == 0)
+    return 1.0 / (float)total_freq;
   return freq_prob[i];
 }
 
@@ -125,6 +127,7 @@ void TrainingHandler::read_frequency_in_file(const string& doc_filename,
 
 void TrainingHandler::output_training_data() {
   ofstream output(training_fname);
+  output << total_freq << endl;
   output << dictionary.size() << endl;
   for(int i = 0; i < dictionary.size(); i++) {
     float freq = freq_prob[i];
@@ -144,6 +147,7 @@ void TrainingHandler::restore_training_data() {
   ifstream myfile(training_fname);
   assert(myfile.is_open());
   // Read freq probability and init dictionary
+  myfile >> total_freq;
   int size;
   myfile >> size;
   dictionary.resize(size);
@@ -215,6 +219,7 @@ void TrainingHandler::training() {
   for(auto &bifreq : connection_freq) {
     connection_prob[bifreq.first] = bifreq.second / (freq_sum - 1);
   }
+  total_freq = freq_sum;
   cout << "conn done!" << endl;
   //dump();
 }

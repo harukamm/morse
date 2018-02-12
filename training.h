@@ -42,6 +42,8 @@ class TrainingHandler {
     
     unordered_map<string, int> dictionary_table;
 
+    long long total_freq;
+
     bimap connection_prob;
 
     vector<float> freq_prob;
