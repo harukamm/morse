@@ -12,7 +12,7 @@ class TrainingHandler {
       "wiki/tom_sawyer.txt",
       "wiki/wizard_oz.txt",
       "wiki/metamorphosis.txt",
-      "wiki/les_miserable.txt"
+      "wiki/les_miserables.txt"
     };
 
     const string training_dir = "training/";
