@@ -127,8 +127,8 @@ void TrainingHandler::read_frequency_in_file(const string& doc_filename,
 void TrainingHandler::output_training_data() {
   ofstream output(training_fname);
   for(int i = 0; i < dictionary.size(); i++) {
+    float freq = freq_prob[i];
     const string& word = dictionary[i];
-    int freq = freq_prob[i];
     output << i << "," << word << "," << freq << endl;
   }
   for(auto &p : connection_prob) {
