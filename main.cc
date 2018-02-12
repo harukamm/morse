@@ -164,9 +164,9 @@ vector<string> decode_sentence(const string& str, Trie* dict, TrainingHandler* t
       for(auto &p : cand_words[i]) {
         int code_length = p.first;
         const string& word = p.second;
-        float freq_prob = training->get_freq_prob(word);
-        float conn_prob = training->get_connection_prob(prev_word, word);
-        float score = conn_prob;
+        float mono_prob = training->get_mono_prob(word);
+        float pair_prob = training->get_pair_prob(prev_word, word);
+        float score = pair_prob;
         node_t next_node = {
             node.score * score, node.word_count + 1,
             make_pair(i, k), word };

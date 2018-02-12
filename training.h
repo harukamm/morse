@@ -27,9 +27,9 @@ class TrainingHandler {
 
     ~TrainingHandler();
 
-    float get_connection_prob(const string& w1, const string& w2);
+    float get_pair_prob(const string& w1, const string& w2);
 
-    float get_freq_prob(const string& w);
+    float get_mono_prob(const string& w);
 
     vector<string> get_dictionary();
 
@@ -44,26 +44,26 @@ class TrainingHandler {
 
     long long total_freq;
 
-    bimap connection_prob;
+    bimap pair_prob;
 
-    vector<float> freq_prob;
+    vector<float> mono_prob;
 
     bool valid_word(const string& word);
 
-    long long bigram_key(int i, int j);
+    long long pair_key(int i, int j);
 
     int word_to_index(const string& w);
 
     int register_to_dictionary(const string& w);
 
     void apply_words_frequency(const vector<string>& words,
-        bimap* connection_freq, unordered_map<int, int>* freq);
+        bimap* pair_freq, unordered_map<int, int>* mono_freq);
     
     void read_frequency_on_line(const string& line,
-        bimap* connection_freq, unordered_map<int, int>* freq);
+        bimap* pair_freq, unordered_map<int, int>* mono_freq);
    
     void read_frequency_in_file(const string& doc_filename,
-        bimap* connection_freq, unordered_map<int, int>* freq);
+        bimap* pair_freq, unordered_map<int, int>* mono_freq);
    
     void output_training_data();
 
