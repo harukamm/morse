@@ -9,6 +9,8 @@ class Util {
 
     static string trim(const string& str);
 
+    static string replace_chars(const string& str, const string& sep, char c);
+
     static string remove_chars(const string& str, const string& sep);
 
     static string remove_whitespaces(const string& str);

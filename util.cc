@@ -20,6 +20,15 @@ string Util::trim(const string& str) {
   }
 }
 
+string Util::replace_chars(const string& str, const string& sep, char c) {
+  char buf[str.size() + 1];
+  for(int i = 0; i < str.size(); i++) {
+    buf[i] = sep.find(str[i]) != string::npos ? c : str[i];
+  }
+  buf[str.size()] = '\0';
+  return buf;
+}
+
 string Util::remove_chars(const string& str, const string& sep) {
   char buf[str.size()];
   int x = 0;
