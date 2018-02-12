@@ -163,12 +163,14 @@ vector<string> decode_sentence(const string& str, Trie* dict, TrainingHandler* t
       const string& prev_word = node.word;
       for(auto &p : cand_words[i]) {
         int code_length = p.first;
+        int next_word_count = node.word_count + 1;
         const string& word = p.second;
         float mono_prob = training->get_mono_prob(word);
         float pair_prob = training->get_pair_prob(prev_word, word);
         float score = pair_prob;
         node_t next_node = {
-            node.score * score, node.word_count + 1,
+            node.score * node.word_count / next_word_count + log(score) / next_word_count,
+            next_word_count,
             make_pair(i, k), word };
         dp[i + code_length].push_back(next_node);
       }
