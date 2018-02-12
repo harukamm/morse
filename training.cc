@@ -23,19 +23,6 @@ TrainingHandler::TrainingHandler() {
 TrainingHandler::~TrainingHandler() {
 }
 
-long long TrainingHandler::bigram_key(int i, int j) {
-  assert(dictionary.size() < base_number);
-  return 1LL * i * base_number + j;
-}
-
-int TrainingHandler::word_to_index(const string& w) {
-  const string& word = Util::to_upper(w);
-  if(valid_word(word)) {
-    return dictionary_table[word];
-  }
-  return NOT_FOUND;
-}
-
 float TrainingHandler::get_connection_prob(const string& w1, const string& w2) {
   int i = word_to_index(w1);
   int j = word_to_index(w2);
@@ -58,6 +45,19 @@ vector<string> TrainingHandler::get_dictionary() {
 
 bool TrainingHandler::valid_word(const string& word) {
   return dictionary_table.find(word) != dictionary_table.end();
+}
+
+long long TrainingHandler::bigram_key(int i, int j) {
+  assert(dictionary.size() < base_number);
+  return 1LL * i * base_number + j;
+}
+
+int TrainingHandler::word_to_index(const string& w) {
+  const string& word = Util::to_upper(w);
+  if(valid_word(word)) {
+    return dictionary_table[word];
+  }
+  return NOT_FOUND;
 }
 
 int TrainingHandler::register_to_dictionary(const string& w) {

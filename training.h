@@ -27,10 +27,6 @@ class TrainingHandler {
 
     ~TrainingHandler();
 
-    long long bigram_key(int i, int j);
-
-    int word_to_index(const string& w);
-
     float get_connection_prob(const string& w1, const string& w2);
 
     float get_freq_prob(const string& w);
@@ -51,6 +47,10 @@ class TrainingHandler {
     vector<float> freq_prob;
 
     bool valid_word(const string& word);
+
+    long long bigram_key(int i, int j);
+
+    int word_to_index(const string& w);
 
     int register_to_dictionary(const string& w);
 
