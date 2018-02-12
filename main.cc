@@ -11,10 +11,6 @@
 
 using namespace std;
 
-const string dictionary_filename = "/usr/share/dict/words";
-//const string dictionary_filename = "dictionary/dictionary.txt";
-//const string dictionary_filename = "dictionary/dictionary_from_book.txt";
-
 unordered_map<string, char> decode_table;
 unordered_map<char, string> encode_table;
 int max_morse_length = 4;
