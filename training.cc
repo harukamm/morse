@@ -9,7 +9,7 @@ const string training_prefix = "training_";
 
 TrainingHandler::TrainingHandler(const string& dict_fname) {
   dictionary_fname = dict_fname;
-  training_fname = training_prefix + dict_fname;
+  training_fname = training_prefix + Util::replace_chars(dict_fname, "/", '_');
   
   init_dictionary(dict_fname);
   restore_training_data();
