@@ -49,10 +49,6 @@ class TrainingHandler {
     vector<float> freq_prob;
 
     bool valid_word(const string& word);
-    
-    static vector<string> split_to_sentences(const string& str);
-
-    static vector<string> split_to_words(const string& str);
 
     int register_to_dictionary(const string& w);
 
