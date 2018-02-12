@@ -23,7 +23,7 @@ class TrainingHandler {
 
     string training_fname;
 
-    TrainingHandler(const string& dict_fname);
+    TrainingHandler();
 
     ~TrainingHandler();
 
@@ -34,6 +34,8 @@ class TrainingHandler {
     float get_connection_prob(const string& w1, const string& w2);
 
     float get_freq_prob(const string& w);
+
+    vector<string> get_dictionary();
 
   private:
     typedef unordered_map<long long, float> bimap;
@@ -48,20 +50,20 @@ class TrainingHandler {
 
     bool valid_word(const string& word);
     
-    void init_dictionary(const string& fname);
-    
     static vector<string> split_to_sentences(const string& str);
 
     static vector<string> split_to_words(const string& str);
 
+    int register_to_dictionary(const string& w);
+
     void apply_words_frequency(const vector<string>& words,
-        bimap* connection_freq, vector<int>* freq);
+        bimap* connection_freq, unordered_map<int, int>* freq);
     
     void read_frequency_on_line(const string& line,
-        bimap* connection_freq, vector<int>* freq);
+        bimap* connection_freq, unordered_map<int, int>* freq);
    
     void read_frequency_in_file(const string& doc_filename,
-        bimap* connection_freq, vector<int>* freq);
+        bimap* connection_freq, unordered_map<int, int>* freq);
    
     void output_training_data();
 

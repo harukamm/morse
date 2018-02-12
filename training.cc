@@ -7,16 +7,13 @@ using namespace std;
 
 const string training_prefix = "training_";
 
-TrainingHandler::TrainingHandler(const string& dict_fname) {
-  dictionary_fname = dict_fname;
+TrainingHandler::TrainingHandler() {
   training_fname =
-      training_dir + training_prefix +
-      Util::replace_chars(dict_fname, "/", '_');
+      training_dir + training_prefix;
   
   ifstream infile(training_fname);
   bool exists = infile.good();
   if(!exists) {
-    init_dictionary(dict_fname);
     training();
     output_training_data();
   } else {
@@ -28,7 +25,8 @@ TrainingHandler::~TrainingHandler() {
 }
 
 long long TrainingHandler::bigram_key(int i, int j) {
-  return 1LL * i * dictionary.size() + j;
+  assert(dictionary.size() < INT_MAX);
+  return 1LL * i * INT_MAX + j;
 }
 
 int TrainingHandler::word_to_index(const string& w) {
@@ -55,31 +53,35 @@ float TrainingHandler::get_freq_prob(const string& w) {
   return freq_prob[i];
 }
 
+vector<string> TrainingHandler::get_dictionary() {
+  return dictionary;
+}
+
 bool TrainingHandler::valid_word(const string& word) {
   return dictionary_table.find(word) != dictionary_table.end();
 }
 
-void TrainingHandler::init_dictionary(const string& fname) {
-  ifstream myfile(fname);
-  assert(myfile.is_open());
-
-  string line;
-  int i = 0;
-  while(getline(myfile, line)) {
-    const string& word = Util::to_upper(Util::trim(line));
-    if(word.size() == 0)
-      continue;
-    if(dictionary_table.find(word) != dictionary_table.end())
-      continue;
-    dictionary.push_back(word);
-    dictionary_table[word] = i;
-    i++;
-  }
-  myfile.close();
+int TrainingHandler::register_to_dictionary(const string& w) {
+  assert(dictionary_table.find(w) == dictionary_table.end());
+  const string& word = Util::to_upper(w);
+  int index = dictionary.size();
+  dictionary.push_back(word);
+  dictionary_table[word] = index;
+  return index;
 }
 
 void TrainingHandler::apply_words_frequency(const vector<string>& words,
-    bimap* connection_freq, vector<int>* freq) {
+    bimap* connection_freq, unordered_map<int, int>* freq) {
+  for(int i = 0; i < words.size(); i++) {
+    const string& w = words[i];
+    int a = word_to_index(w);
+    if(a == NOT_FOUND) {
+      // If w is an unknown word, register it to dictionary.
+      a = register_to_dictionary(w);
+    }
+    (*freq)[a]++;
+  }
+
   for(int i = 1; i < words.size(); i++) {
     const string& w1 = words[i - 1];
     const string& w2 = words[i];
@@ -90,17 +92,10 @@ void TrainingHandler::apply_words_frequency(const vector<string>& words,
       (*connection_freq)[k]++;
     }
   }
-  for(int i = 0; i < words.size(); i++) {
-    const string& w = words[i];
-    int a = word_to_index(w);
-    if(a != NOT_FOUND) {
-      (*freq)[a]++;
-    }
-  }
 }
 
 void TrainingHandler::read_frequency_on_line(const string& line,
-    bimap* connection_freq, vector<int>* freq) {
+    bimap* connection_freq, unordered_map<int, int>* freq) {
   const vector<string>& sentences = Util::split_by_separates(line, "!?.,\t");
   for(auto &sentence : sentences) {
     const vector<string>& words = Util::split_by_separates(sentence, " ");
@@ -109,7 +104,7 @@ void TrainingHandler::read_frequency_on_line(const string& line,
 }
 
 void TrainingHandler::read_frequency_in_file(const string& doc_filename,
-    bimap* connection_freq, vector<int>* freq) {
+    bimap* connection_freq, unordered_map<int, int>* freq) {
   ifstream myfile(doc_filename);
   assert(myfile.is_open());
 
@@ -201,13 +196,13 @@ void TrainingHandler::dump() {
 }
 
 void TrainingHandler::training() {
-  int size = dictionary.size();
-  vector<int> freq(size, 0);
+  unordered_map<int, int> freq;
   bimap connection_freq;
   for(int i = 0; i < training_sources.size(); i++) {
     read_frequency_in_file(training_sources[i], &connection_freq, &freq);
   }
   cout << "calc done!" << endl;
+  int size = dictionary.size();
   freq_prob.resize(size, 0);
   long long freq_sum = 0LL;
   for(int i = 0; i < size; i++)

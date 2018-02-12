@@ -237,10 +237,10 @@ int main(int argc, char** argv) {
     exit(1);
   }
   init_table();
-  Trie* tr = Trie::from_dictionary(dictionary_filename);
-  cout << "trie done" << endl;
-  TrainingHandler* training = new TrainingHandler(dictionary_filename);
+  TrainingHandler* training = new TrainingHandler();
   cout << "training done" << endl;
+  Trie* tr = Trie::from_array(training->get_dictionary());
+  cout << "trie done" << endl;
 //  string input = "sheissoangryyouhavetobeaway";
 //  string input = "hesaidtohimselfthathewouldnotspeak";
 //  string sentence = "I want to assign this to a string";
