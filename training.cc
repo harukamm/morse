@@ -116,6 +116,7 @@ void TrainingHandler::read_frequency_in_file(const string& doc_filename,
       sentence += line;
       if(line.find_first_of("!?.,") != string::npos)
         break;
+      sentence += " "; // add whitespace instead of new line
     }
     read_frequency_on_line(sentence, connection_freq, freq);
     sentence.clear();
