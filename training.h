@@ -9,7 +9,9 @@ using namespace std;
 class TrainingHandler {
   public:
     const vector<string> training_sources {
-      "wiki/book.txt"
+      "wiki/tom_sawyer.txt",
+      "wiki/wizard_oz.txt",
+      "wiki/metamorphosis.txt"
     };
 
     string dictionary_fname;
