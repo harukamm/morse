@@ -31,7 +31,9 @@ float TrainingHandler::get_pair_prob(const string& w1, const string& w2) {
     if(pair_prob.find(k) != pair_prob.end())
       return pair_prob[k];
   }
-  return 1.0 / (float)total_freq;
+  if(w1.size() == 1 && w2.size() == 1)
+    return 1.0 / ((float)total_freq * 10);
+  return 1.0 / ((float)total_freq * 2.0);
 }
 
 float TrainingHandler::get_mono_prob(const string& w) {
