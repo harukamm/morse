@@ -205,7 +205,6 @@ void TrainingHandler::training() {
   for(int i = 0; i < training_sources.size(); i++) {
     read_frequency_in_file(training_sources[i], &pair_freq, &freq);
   }
-  cout << "calc done!" << endl;
   int size = dictionary.size();
   mono_prob.resize(size, 0);
   long long freq_sum = 0LL;
@@ -213,13 +212,11 @@ void TrainingHandler::training() {
     freq_sum += freq[i];
   for(int i = 0; freq_sum != 0 && i < size; i++)
     mono_prob[i] = (float) freq[i] / freq_sum;
-  cout << "freq done!" << endl;
   if(freq_sum < 2)
     return;
   for(auto &bifreq : pair_freq) {
     pair_prob[bifreq.first] = bifreq.second / (freq_sum - 1);
   }
   total_freq = freq_sum;
-  cout << "pair done!" << endl;
   //dump();
 }

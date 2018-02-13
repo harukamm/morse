@@ -232,9 +232,7 @@ int main(int argc, char** argv) {
   }
   init_table();
   TrainingHandler* training = new TrainingHandler();
-  cout << "training done" << endl;
   Trie* tr = Trie::from_array(training->get_dictionary());
-  cout << "trie done" << endl;
 //  string input = "sheissoangryyouhavetobeaway";
 //  string input = "hesaidtohimselfthathewouldnotspeak";
 //  string sentence = "I want to assign this to a string";
