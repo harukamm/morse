@@ -36,9 +36,10 @@ float TrainingHandler::get_pair_prob(const string& w1, const string& w2) {
 
 float TrainingHandler::get_mono_prob(const string& w) {
   int i = word_to_index(w);
-  if(i == NOT_FOUND || mono_prob[i] == 0)
-    return 1.0 / (float)total_freq;
-  return mono_prob[i];
+  if(i != NOT_FOUND && mono_prob[i] != 0) {
+    return mono_prob[i];
+  }
+  return 1.0 / ((float)total_freq * 2.0);
 }
 
 vector<string> TrainingHandler::get_dictionary() {
