@@ -188,7 +188,7 @@ vector<string> decode_sentence(const string& str, Trie* dict, TrainingHandler* t
       node = dp[node.prev.first][node.prev.second];
     }
     reverse(sentence.begin(), sentence.end());
-    cout << (k + 1) << "-the (";
+    cout << "#" << (k + 1) << " (";
     cout << dp[str.size()][k].score << "): ";
     Util::print_vec(sentence);
     best_sentences.push_back(sentence);
