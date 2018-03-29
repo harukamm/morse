@@ -1,6 +1,7 @@
 CC = clang++ -MMD -MP	-std=c++14
 
-SOURCES=main.cc trie.cc training.cc util.cc
+SRC_DIR = ./src
+SOURCES = $(shell ls $(SRC_DIR)/*.cc)
 OBJS = $(SOURCES:.cc=.o)
 
 all: main
